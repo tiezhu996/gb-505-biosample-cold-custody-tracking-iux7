@@ -10,6 +10,9 @@ export const actionLabels: Record<string, string> = {
   'specimen.released': '协议批准放行样本',
   'custody_transfer.prepared': '发起交接', 'custody_transfer.accepted': '接收交接',
   'custody_transfer.rejected': '拒绝交接', 'custody_transfer.cancelled': '取消交接',
+  'stocktake.prepared': '发起冻存盘点', 'stocktake.item_marked': '标记盘点条目',
+  'stocktake.closed': '盘点关单换位', 'stocktake.cancelled': '取消盘点重盘',
+  'specimen.stocktake_missing': '盘点登记样本缺失', 'specimen.stocktake_mislocated': '盘点校正样本位置',
   'protocol_review.created': '完成协议复核',
 }
 

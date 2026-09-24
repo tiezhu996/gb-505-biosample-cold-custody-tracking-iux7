@@ -6,6 +6,8 @@ import { SpecimenDetailPage } from '../pages/SpecimenDetailPage'
 import { SpecimensPage } from '../pages/SpecimensPage'
 import { TransfersPage } from '../pages/TransfersPage'
 import { StoragePage } from '../pages/StoragePage'
+import { StocktakesPage } from '../pages/StocktakesPage'
+import { StocktakeDetailPage } from '../pages/StocktakeDetailPage'
 import { LoginPage } from '../pages/LoginPage'
 import { ProtocolsPage } from '../pages/ProtocolsPage'
 
@@ -32,6 +34,8 @@ export const router = createBrowserRouter([
         { path: '/specimens/:id', element: <SpecimenDetailPage /> },
         { path: '/storage', element: <StoragePage /> },
         { path: '/transfers', element: <TransfersPage /> },
+        { path: '/stocktakes', element: <StocktakesPage /> },
+        { path: '/stocktakes/:id', element: <StocktakeDetailPage /> },
         { path: '/protocols', element: <ProtocolsPage /> },
         {
           element: <PermissionRoute permission="audit:read" />,

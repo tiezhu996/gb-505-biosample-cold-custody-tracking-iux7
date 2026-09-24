@@ -6,8 +6,9 @@
 
 1. 接收专员登记样本接收号、脱敏受试者编码、来源协议、体积和当前保管人。
 2. 保管员维护冷冻柜或液氮罐，发起交接并由另一名有权限的人员接收；接收成功后样本位置、格位、状态和容器占用量在同一事务内更新。
-3. 协议复核员核验知情同意、使用范围、保留期限和可选的 MinIO 协议文件对象。通过复核会放行已冻存样本，暂缓或拒绝必须填写说明。
-4. 所有关键写操作记录请求 ID、操作者、前后状态、前后位置和保管人，并使用 SHA-256 前向哈希形成只追加审计链。
+3. 保管员每月对照任务表发起冻存盘点：选择可用容器后固化在库样本的原容器和格位清单，逐支标记在库、缺失（写说明）或位置不符（选新容器和新格位）；全部条目处理完才能关单，关单在同一事务内一次性换位并调整两边容器占用。盘点开始后样本若已交接导致位置漂移，旧清单不能覆盖现位置，本任务只能取消后重新盘点。
+4. 协议复核员核验知情同意、使用范围、保留期限和可选的 MinIO 协议文件对象。通过复核会放行已冻存样本，暂缓或拒绝必须填写说明。
+5. 所有关键写操作记录请求 ID、操作者、前后状态、前后位置和保管人，并使用 SHA-256 前向哈希形成只追加审计链。
 
 首次启动会幂等创建 3 个冻存容器、4 份样本、2 条交接记录和 1 条协议复核记录，便于直接验证完整流程。
 
@@ -92,6 +93,11 @@ docker compose down -v
 | `GET /api/custody-transfers[/:id]` | 查询交接 | 已登录 |
 | `POST /api/custody-transfers` | 发起交接 | `transfer:prepare` |
 | `POST /api/custody-transfers/:id/resolve` | 接收、拒绝或取消交接 | `transfer:resolve` |
+| `GET /api/stocktakes[/:id]` | 查询冻存盘点任务与固化清单 | 已登录 |
+| `POST /api/stocktakes` | 选择可用容器发起盘点并固化清单 | `stocktake:prepare` |
+| `POST /api/stocktakes/:id/items/:itemId/mark` | 逐支标记在库/缺失/位置不符 | `stocktake:prepare` |
+| `POST /api/stocktakes/:id/close` | 全部条目处理完关单，一次性换位并调整占用 | `stocktake:close` |
+| `POST /api/stocktakes/:id/cancel` | 取消盘点（位置漂移时只能重盘） | `stocktake:prepare` |
 | `GET /api/protocol-reviews[/:id]` | 查询协议复核 | 已登录 |
 | `POST /api/protocol-reviews` | 提交协议复核 | `protocol:review` |
 | `GET /api/audit-logs` | 查询只追加审计事件 | `audit:read` |
@@ -157,12 +163,19 @@ docker compose config --quiet
 - 前端：`src/types/domain.ts`、`src/api/index.ts`、`src/stores/transferStore.ts`、`src/components/common/CustodyBadge.tsx`、`src/components/common/CustodyTimeline.tsx`、`src/pages/TransfersPage.tsx`
 - 测试：`internal/constants/specimen_state_test.go`、`internal/model/quality_rules_test.go`
 
+`StocktakeState` 固定为 `in_progress`、`closed`、`cancelled`；`StocktakeResult` 固定为 `pending`、`in_place`、`missing`、`mislocated`。
+
+- 后端：`internal/constants/stocktake_state.go`、`internal/dto/stocktake.go`、`internal/model/stocktake.go`、`internal/repository/stocktake_repository.go`、`internal/service/stocktake_service.go`、`internal/handler/stocktake_handler.go`、`internal/router/router.go`、`internal/util/database.go`
+- 前端：`src/types/domain.ts`、`src/api/index.ts`、`src/stores/stocktakeStore.ts`、`src/components/common/StocktakeBadge.tsx`、`src/pages/StocktakesPage.tsx`、`src/pages/StocktakeDetailPage.tsx`
+- 测试：`internal/constants/stocktake_state_test.go`、`internal/model/stocktake_test.go`、`internal/repository/stocktake_repository_test.go`
+
 修改枚举时必须同步更新上述位置、数据库兼容策略、测试和 README。
 
 ## 安全与一致性
 
 - JWT 使用 HS256，并在后端路由执行 RBAC；前端导航、路由守卫和操作按钮同步权限，但后端仍是最终权限边界。
 - 交接受理使用事务和行锁，同时校验来源保管人、来源位置、目标容器容量、格位占用和温区。
+- 冻存盘点固化清单后不直接改位置；关单时在同一事务内对任务、清单、样本和涉及容器加行锁，逐条复核样本仍在原容器原格位，缺失样本移出并置为已处置、位置不符样本迁入新格位，并一次性重算两边占用、检测新格位与清单外样本的冲突。任一条目在盘点期间因交接等原因离开原位置，关单即失败并提示只能重盘，旧清单绝不覆盖当前位置。
 - 审计模型拒绝更新和删除，记录前后位置与责任人，并可验证整条 SHA-256 哈希链。
 - 请求日志不记录认证头或请求正文；全局错误处理中间件不会向客户端泄露内部错误。
 - Redis 提供全局限流；MinIO 承载并校验协议附件对象；所有依赖都由 Compose healthcheck 管理启动顺序。

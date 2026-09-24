@@ -3,6 +3,8 @@ export type TransferState = 'prepared' | 'accepted' | 'rejected' | 'cancelled'
 export type ReviewDecision = 'approved' | 'hold' | 'rejected'
 export type TemperatureZone = 'minus20' | 'minus80' | 'liquid_nitrogen'
 export type Role = 'admin' | 'receiver' | 'custodian' | 'reviewer' | 'auditor'
+export type StocktakeState = 'in_progress' | 'closed' | 'cancelled'
+export type StocktakeResult = 'pending' | 'in_place' | 'missing' | 'mislocated'
 
 export interface BaseEntity {
   id: number
@@ -112,6 +114,49 @@ export interface PageResult<T> {
   total: number
   page: number
   pageSize: number
+}
+
+export interface StocktakeItem {
+  id: number
+  createdAt: string
+  updatedAt: string
+  stocktakeId: number
+  specimenId: number
+  specimen?: Specimen
+  originContainerId: number
+  originContainerCode: string
+  originContainerName: string
+  originPosition: string
+  originLocation: string
+  result: StocktakeResult
+  note?: string
+  newContainerId?: number
+  newContainerCode?: string
+  newPosition?: string
+  markedById?: number
+  markedByName?: string
+  markedAt?: string
+}
+
+export interface Stocktake extends BaseEntity {
+  stocktakeNo: string
+  taskMonth: string
+  containerId: number
+  container?: StorageContainer
+  state: StocktakeState
+  totalItems: number
+  processedItems: number
+  inPlaceItems: number
+  missingItems: number
+  mislocatedItems: number
+  startedById: number
+  startedByName: string
+  startedAt: string
+  closedById?: number
+  closedByName?: string
+  closedAt?: string
+  cancelReason?: string
+  items?: StocktakeItem[]
 }
 
 export interface APIEnvelope<T> { data: T; requestId: string }

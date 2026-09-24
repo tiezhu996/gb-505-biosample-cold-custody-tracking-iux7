@@ -87,6 +87,8 @@ func Migrate(db *gorm.DB) error {
 		&model.Specimen{},
 		&model.CustodyTransfer{},
 		&model.ProtocolReview{},
+		&model.Stocktake{},
+		&model.StocktakeItem{},
 		&model.AuditLog{},
 	); err != nil {
 		return err
