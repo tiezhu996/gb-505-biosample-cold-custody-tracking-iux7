@@ -4,6 +4,8 @@ import { useAuth } from '../hooks/useAuth'
 import { AuditPage } from '../pages/AuditPage'
 import { SpecimenDetailPage } from '../pages/SpecimenDetailPage'
 import { SpecimensPage } from '../pages/SpecimensPage'
+import { StocktakeDetailPage } from '../pages/StocktakeDetailPage'
+import { StocktakesPage } from '../pages/StocktakesPage'
 import { TransfersPage } from '../pages/TransfersPage'
 import { StoragePage } from '../pages/StoragePage'
 import { LoginPage } from '../pages/LoginPage'
@@ -32,6 +34,8 @@ export const router = createBrowserRouter([
         { path: '/specimens/:id', element: <SpecimenDetailPage /> },
         { path: '/storage', element: <StoragePage /> },
         { path: '/transfers', element: <TransfersPage /> },
+        { path: '/stocktakes', element: <StocktakesPage /> },
+        { path: '/stocktakes/:id', element: <StocktakeDetailPage /> },
         { path: '/protocols', element: <ProtocolsPage /> },
         {
           element: <PermissionRoute permission="audit:read" />,

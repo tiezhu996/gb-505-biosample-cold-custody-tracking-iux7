@@ -47,6 +47,9 @@ func TestRolePermissionsAreLeastPrivilege(t *testing.T) {
 	if !RoleCustodian.Can("transfer:resolve") || RoleCustodian.Can("protocol:review") {
 		t.Fatal("custodian must resolve transfers but not review protocols")
 	}
+	if !RoleCustodian.Can("stocktake:execute") || RoleReceiver.Can("stocktake:execute") {
+		t.Fatal("only custodians (and admins) may execute stocktakes")
+	}
 	if !RoleReviewer.Can("protocol:review") || RoleReviewer.Can("specimen:create") {
 		t.Fatal("reviewer must only receive review and audit grants")
 	}

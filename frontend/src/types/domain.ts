@@ -3,6 +3,8 @@ export type TransferState = 'prepared' | 'accepted' | 'rejected' | 'cancelled'
 export type ReviewDecision = 'approved' | 'hold' | 'rejected'
 export type TemperatureZone = 'minus20' | 'minus80' | 'liquid_nitrogen'
 export type Role = 'admin' | 'receiver' | 'custodian' | 'reviewer' | 'auditor'
+export type StocktakeState = 'in_progress' | 'closed' | 'cancelled'
+export type StocktakeResult = 'in_stock' | 'missing' | 'mismatched'
 
 export interface BaseEntity {
   id: number
@@ -77,6 +79,48 @@ export interface ProtocolReview extends BaseEntity {
   documentObjectKey?: string
   notes: string
   reviewedAt: string
+}
+
+export interface StocktakeTask extends BaseEntity {
+  taskNo: string
+  containerId: number
+  container?: StorageContainer
+  state: StocktakeState
+  totalCount: number
+  pendingCount: number
+  inStockCount: number
+  missingCount: number
+  mismatchCount: number
+  startedById: number
+  startedByName: string
+  startedAt: string
+  closedById?: number
+  closedByName?: string
+  closedAt?: string
+  note?: string
+  cancelReason?: string
+  items?: StocktakeItem[]
+}
+
+export interface StocktakeItem extends BaseEntity {
+  taskId: number
+  task?: StocktakeTask
+  specimenId: number
+  specimen?: Specimen
+  accessionNo: string
+  sampleType: string
+  originContainerId: number
+  originContainer?: StorageContainer
+  originPosition: string
+  originCustodian: string
+  result: StocktakeResult | ''
+  remark?: string
+  newContainerId?: number
+  newContainer?: StorageContainer
+  newPosition?: string
+  checkedById?: number
+  checkedByName?: string
+  checkedAt?: string
 }
 
 export interface AuditLog {

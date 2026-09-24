@@ -1,4 +1,4 @@
-import { AuditOutlined, DatabaseOutlined, FileProtectOutlined, InboxOutlined, LogoutOutlined, MenuFoldOutlined, MenuUnfoldOutlined, SafetyCertificateOutlined, SwapOutlined } from '@ant-design/icons'
+import { AuditOutlined, DatabaseOutlined, FileProtectOutlined, InboxOutlined, LogoutOutlined, MenuFoldOutlined, MenuUnfoldOutlined, SafetyCertificateOutlined, SolutionOutlined, SwapOutlined } from '@ant-design/icons'
 import { Avatar, Button, Dropdown, Layout, Menu, Space, Typography } from 'antd'
 import { useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
@@ -10,6 +10,7 @@ const navigation = [
   { key: '/specimens', icon: <InboxOutlined />, label: '样本队列' },
   { key: '/storage', icon: <DatabaseOutlined />, label: '冻存位置' },
   { key: '/transfers', icon: <SwapOutlined />, label: '交接工作台' },
+  { key: '/stocktakes', icon: <SolutionOutlined />, label: '冻存盘点' },
   { key: '/protocols', icon: <FileProtectOutlined />, label: '协议复核' },
   { key: '/audit', icon: <AuditOutlined />, label: '链路审计', permission: 'audit:read' },
 ]

@@ -87,9 +87,18 @@ func Migrate(db *gorm.DB) error {
 		&model.Specimen{},
 		&model.CustodyTransfer{},
 		&model.ProtocolReview{},
+		&model.StocktakeTask{},
+		&model.StocktakeItem{},
 		&model.AuditLog{},
 	); err != nil {
 		return err
+	}
+	const activeStocktakeIndex = `
+CREATE UNIQUE INDEX IF NOT EXISTS idx_stocktake_active_container
+ON stocktake_tasks (container_id)
+WHERE state = 'in_progress';`
+	if err := db.Exec(activeStocktakeIndex).Error; err != nil {
+		return fmt.Errorf("create active stocktake partial index: %w", err)
 	}
 	const immutableAuditFunction = `
 CREATE OR REPLACE FUNCTION reject_audit_log_mutation()

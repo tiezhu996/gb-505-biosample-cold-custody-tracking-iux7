@@ -11,6 +11,9 @@ export const actionLabels: Record<string, string> = {
   'custody_transfer.prepared': '发起交接', 'custody_transfer.accepted': '接收交接',
   'custody_transfer.rejected': '拒绝交接', 'custody_transfer.cancelled': '取消交接',
   'protocol_review.created': '完成协议复核',
+  'stocktake.started': '发起冻存盘点', 'stocktake.item_marked': '标记盘点条目',
+  'stocktake.closed': '盘点关单换位', 'stocktake.cancelled': '取消盘点任务',
+  'storage_container.occupied_adjusted': '调整容器占用',
 }
 
 export const temperatureLabels: Record<string, string> = {

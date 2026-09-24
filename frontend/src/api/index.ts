@@ -1,7 +1,8 @@
 import { apiClient, unwrap } from './client'
 import type {
   AuditLog, CustodyTransfer, PageResult, ProtocolReview, ReviewDecision,
-  Specimen, SpecimenState, StorageContainer, TransferState, User,
+  Specimen, SpecimenState, StocktakeItem, StocktakeResult, StocktakeTask,
+  StorageContainer, TransferState, User,
 } from '../types/domain'
 
 export interface PageParams { page?: number; pageSize?: number; search?: string }
@@ -62,4 +63,20 @@ export const protocolAPI = {
 export const auditAPI = {
   list: (params: PageParams & { entityType?: string; actorId?: number } = {}) =>
     unwrap<PageResult<AuditLog>>(apiClient.get('/audit-logs', { params })),
+}
+
+export const stocktakeAPI = {
+  list: (params: PageParams & { state?: string; containerId?: number } = {}) =>
+    unwrap<PageResult<StocktakeTask>>(apiClient.get('/stocktakes', { params })),
+  get: (id: number) => unwrap<StocktakeTask>(apiClient.get(`/stocktakes/${id}`)),
+  listItems: (id: number, params: PageParams & { result?: StocktakeResult; pending?: boolean } = {}) =>
+    unwrap<PageResult<StocktakeItem>>(apiClient.get(`/stocktakes/${id}/items`, { params })),
+  create: (payload: { taskNo: string; containerId: number; note?: string }) =>
+    unwrap<StocktakeTask>(apiClient.post('/stocktakes', payload)),
+  markItem: (id: number, payload: {
+    result: StocktakeResult; remark?: string; newContainerId?: number; newPosition?: string;
+  }) => unwrap<StocktakeItem>(apiClient.post(`/stocktake-items/${id}/mark`, payload)),
+  close: (id: number) => unwrap<StocktakeTask>(apiClient.post(`/stocktakes/${id}/close`, {})),
+  cancel: (id: number, reason: string) =>
+    unwrap<StocktakeTask>(apiClient.post(`/stocktakes/${id}/cancel`, { reason })),
 }
